@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import firebase from "../../config/firebase";
+import md5 from "md5";
 import {
   Button,
   Form,
@@ -11,6 +11,8 @@ import {
   Segment,
 } from "semantic-ui-react";
 
+import firebase from "../../config/firebase";
+
 const Register = (props) => {
   const [inputs, setInputs] = useState({
     username: "",
@@ -18,21 +20,17 @@ const Register = (props) => {
     password: "",
     passwordConfirmation: "",
   });
+  const [errors, setErrors] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [usersRef, setUsersRef] = useState(firebase.database().ref("users"));
 
-  const _handleChange = (e) => {
-    setInputs((state) => ({ ...state, [e.target.name]: e.target.value }));
-  };
+  const __isFormEmpty = ({ username, email, password, passwordConfirmation }) =>
+    !username.length ||
+    !email.length ||
+    !password.length ||
+    !passwordConfirmation.length;
 
-  let __formEmpty = ({ username, email, password, passwordConfirmation }) => {
-    return (
-      !username.length ||
-      !email.length ||
-      !password.length ||
-      !passwordConfirmation.length
-    );
-  };
-
-  let __passwordValid = ({ password, passwordConfirmation }) => {
+  const __isPasswordValid = ({ password, passwordConfirmation }) => {
     if (password.length < 6 || passwordConfirmation.length < 6) {
       return false;
     } else if (password !== passwordConfirmation) {
@@ -42,28 +40,71 @@ const Register = (props) => {
     }
   };
 
-  let __formValidate = (inputs) => {
-    if (__formEmpty(inputs)) {
+  const __isFormValid = (inputs) => {
+    if (__isFormEmpty(inputs)) {
+      setErrors(["Fill in all fields."]);
       return false;
-    } else if (!__passwordValid(inputs)) {
+    } else if (!__isPasswordValid(inputs)) {
+      setErrors(["Password is invalid."]);
       return false;
     } else {
       return true;
     }
   };
+
+  const __inputErrors = (input) =>
+    errors.some((err) => err.toLowerCase().includes(input));
+
+  const _handleChange = (e) => {
+    setInputs((state) => ({ ...state, [e.target.name]: e.target.value }));
+  };
+
   const _handleSubmit = (e) => {
     e.preventDefault();
-    if (__formValidate(inputs)) {
+    if (__isFormValid(inputs)) {
+      setLoading(true);
+      setErrors([]);
       firebase
         .auth()
         .createUserWithEmailAndPassword(inputs.email, inputs.password)
         .then((createUser) => {
           console.log(createUser);
+          createUser.user
+            .updateProfile({
+              displayName: inputs.username,
+              photoURL: `https://www.gravatar.com/avatar/${md5(
+                createUser.user.email
+              )}?d=identicon`,
+            })
+            .then(() => {
+              __saveuser(createUser)
+                .then(() => {
+                  console.log("user save");
+                  setLoading(false);
+                })
+                .catch();
+            })
+            .catch((err) => {
+              console.log("updateProfile");
+              console.log(err);
+              setErrors([err.message]);
+              setLoading(false);
+            });
         })
         .catch((err) => {
+          console.log("createUserWithEmailAndPassword");
           console.log(err);
+          setErrors([err.message]);
+          setLoading(false);
         });
     }
+  };
+
+  const __saveuser = (createdUser) => {
+    return usersRef.child(createdUser.user.uid).set({
+      name: createdUser.user.displayName,
+      avatar: createdUser.user.photoURL,
+    });
   };
 
   return (
@@ -97,6 +138,7 @@ const Register = (props) => {
               placeholder="Email"
               onChange={_handleChange}
               value={inputs.email}
+              error={__inputErrors("email")}
             />
             {/* Password Input */}
             <Form.Input
@@ -108,6 +150,7 @@ const Register = (props) => {
               placeholder="Password"
               onChange={_handleChange}
               value={inputs.password}
+              error={__inputErrors("password")}
             />
             {/* Password Confirmation Input */}
             <Form.Input
@@ -119,14 +162,25 @@ const Register = (props) => {
               placeholder="Password Confirmation"
               onChange={_handleChange}
               value={inputs.passwordConfirmation}
+              error={__inputErrors("password")}
             />
 
-            <Button color="orange" size="large" fluid>
+            <Button color="orange" size="large" loading={loading} fluid>
               Submit
             </Button>
           </Segment>
         </Form>
 
+        {/* Message Errors */}
+        {errors.length > 0 && (
+          <Message color="red">
+            {errors.map((err, i) => (
+              <p key={i}>{err}</p>
+            ))}
+          </Message>
+        )}
+
+        {/* Message Login */}
         <Message>
           Already a user? <Link to="/login">Login</Link>
         </Message>
