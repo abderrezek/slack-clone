@@ -5,6 +5,8 @@ import * as serviceWorker from "./serviceWorker";
 import { BrowserRouter as Router } from "react-router-dom";
 import RouterApp from "./components/RouterApp";
 
+import "semantic-ui-css/semantic.min.css";
+
 ReactDOM.render(
   <Router>
     <React.StrictMode>
