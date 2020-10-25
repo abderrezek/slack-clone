@@ -43,6 +43,19 @@ const Login = (props) => {
     if (__isFormValid(inputs)) {
       setLoading(true);
       setErrors([]);
+
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(inputs.email, inputs.password)
+        .then((signedInUser) => {
+          console.log(signedInUser);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setLoading(false);
+          setErrors([err.message]);
+        });
     }
   };
 

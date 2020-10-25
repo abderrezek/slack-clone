@@ -1,11 +1,21 @@
-import React from "react";
-import { Switch, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Switch, Route, withRouter } from "react-router-dom";
+
+import firebase from "../config/firebase";
 
 import App from "./App/App";
 import Login from "./Auth/Login";
 import Register from "./Auth/Register";
 
-const RouterApp = (props) => {
+const RouterApp = ({ history }) => {
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        history.push("/");
+      }
+    });
+  }, [history]);
+
   return (
     <Switch>
       <Route exact path="/" component={App} />
@@ -15,4 +25,6 @@ const RouterApp = (props) => {
   );
 };
 
-export default RouterApp;
+const RouterWithAuth = withRouter(RouterApp);
+
+export default RouterWithAuth;
