@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Switch, Route, withRouter } from "react-router-dom";
+import { connect } from "react-redux";
 
 import firebase from "../config/firebase";
 
@@ -7,14 +8,17 @@ import App from "./App/App";
 import Login from "./Auth/Login";
 import Register from "./Auth/Register";
 
-const RouterApp = ({ history }) => {
+import { setUser } from "../redux/actions/userActions";
+
+const RouterApp = ({ history, setUser }) => {
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
+        setUser(user);
         history.push("/");
       }
     });
-  }, [history]);
+  }, [history, setUser]);
 
   return (
     <Switch>
@@ -25,6 +29,6 @@ const RouterApp = ({ history }) => {
   );
 };
 
-const RouterWithAuth = withRouter(RouterApp);
+const RouterWithAuth = withRouter(connect(null, { setUser })(RouterApp));
 
 export default RouterWithAuth;
