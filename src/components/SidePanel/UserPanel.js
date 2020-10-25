@@ -20,7 +20,8 @@ const UserPanel = () => {
     },
     {
       key: "signout",
-      text: <span onClick={_handleSignedOut}>Signed Out</span>,
+      text: <span>Signed Out</span>,
+      onClick: _handleSignedOut,
     },
   ];
 
