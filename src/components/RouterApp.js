@@ -9,17 +9,20 @@ import Login from "./Auth/Login";
 import Register from "./Auth/Register";
 import Spinner from "./Spinner";
 
-import { setUser } from "../redux/actions/userActions";
+import { setUser, clearUser } from "../redux/actions/userActions";
 
-const RouterApp = ({ history, setUser, isLoading }) => {
+const RouterApp = ({ history, setUser, isLoading, clearUser }) => {
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         setUser(user);
         history.push("/");
+      } else {
+        clearUser();
+        history.push("/login");
       }
     });
-  }, [history, setUser]);
+  }, [history, setUser, clearUser]);
 
   return isLoading ? (
     <Spinner />
@@ -37,7 +40,7 @@ const mapStateFromProps = (state) => ({
 });
 
 const RouterWithAuth = withRouter(
-  connect(mapStateFromProps, { setUser })(RouterApp)
+  connect(mapStateFromProps, { setUser, clearUser })(RouterApp)
 );
 
 export default RouterWithAuth;

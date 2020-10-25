@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import md5 from "md5";
 import {
   Button,
   Form,
@@ -20,7 +19,6 @@ const Login = (props) => {
   });
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [usersRef, setUsersRef] = useState(firebase.database().ref("users"));
 
   const __isFormValid = ({ email, password }) => {
     if (!email.length || !password.length) {
