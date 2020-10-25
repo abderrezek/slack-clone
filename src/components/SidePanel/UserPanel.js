@@ -1,15 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { Dropdown, Grid, Header, Icon } from "semantic-ui-react";
 
 import firebase from "../../config/firebase";
 
-const UserPanel = () => {
+const UserPanel = ({ currentUser }) => {
+  const [user, setUser] = useState(currentUser);
+
   const _dropdownOptions = () => [
     {
       key: "user",
       text: (
         <span>
-          Signed in as <strong>User</strong>
+          Signed in as <strong>{user.displayName}</strong>
         </span>
       ),
       disabled: true,
@@ -47,7 +49,7 @@ const UserPanel = () => {
           {/* User Dropdown */}
           <Header style={{ padding: "0.25em" }} as="h4" inverted>
             <Dropdown
-              trigger={<span>User</span>}
+              trigger={<span>{user.displayName}</span>}
               options={_dropdownOptions()}
             />
           </Header>
