@@ -14,7 +14,7 @@ const SidePanel = ({ currentUser }) => {
       style={{ backgroundColor: "#4c3c4c" }}
     >
       <UserPanel currentUser={currentUser} />
-      <Channels />
+      <Channels currentUser={currentUser} />
     </Menu>
   );
 };
