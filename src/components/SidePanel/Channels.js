@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { connect } from "react-redux";
 import { Button, Form, Icon, Input, Menu, Modal } from "semantic-ui-react";
 
 import firebase from "../../config/firebase";
 
-const Channels = ({ currentUser }) => {
+import { setCurrentChannel } from "../../redux/actions/channelActions";
+
+const Channels = ({ currentUser, setCurrentChannel }) => {
   const [channels, setChannels] = useState([]);
   const [open, setOpen] = useState(false);
   const [inputs, setInputs] = useState({
@@ -14,7 +17,25 @@ const Channels = ({ currentUser }) => {
     firebase.database().ref("channels")
   );
 
+  useEffect(() => {
+    __addListeners();
+  }, []);
+
+  const __addListeners = () => {
+    const loadedChannels = [];
+    channelsRef
+      .once("value", (snap) => {
+        snap.forEach((channels) => {
+          loadedChannels.push(channels.val());
+        });
+      })
+      .then(() => {
+        setChannels(loadedChannels);
+      });
+  };
+
   const _closeModal = (e) => setOpen(false);
+
   const _openModal = (e) => setOpen(true);
 
   const _handleChange = (e) =>
@@ -45,12 +66,30 @@ const Channels = ({ currentUser }) => {
       .then(() => {
         setInputs({ channelName: "", channelDetail: "" });
         _closeModal();
+        __addListeners();
       })
       .catch((err) => console.error(err));
   };
 
+  const __changeChannel = (channel) => {
+    setCurrentChannel(channel);
+  };
+
   const __isFormValid = ({ channelName, channelDetail }) =>
     channelName && channelDetail;
+
+  const __displayChannels = (channels) =>
+    channels.length > 0 &&
+    channels.map((channel) => (
+      <Menu.Item
+        key={channel.id}
+        onClick={() => __changeChannel(channel)}
+        name={channel.name}
+        style={{ opacity: 0.7 }}
+      >
+        # {channel.name}
+      </Menu.Item>
+    ));
 
   return (
     <>
@@ -61,6 +100,9 @@ const Channels = ({ currentUser }) => {
           </span>{" "}
           ({channels.length}) <Icon name="add" onClick={_openModal} />
         </Menu.Item>
+
+        {/* Channels */}
+        {__displayChannels(channels)}
       </Menu.Menu>
 
       {/* Add Channel Modal */}
@@ -99,4 +141,4 @@ const Channels = ({ currentUser }) => {
   );
 };
 
-export default Channels;
+export default connect(null, { setCurrentChannel })(Channels);
