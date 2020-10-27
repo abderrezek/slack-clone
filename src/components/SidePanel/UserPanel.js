@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dropdown, Grid, Header, Icon, Image } from "semantic-ui-react";
 
 import firebase from "../../config/firebase";
@@ -11,7 +11,7 @@ const UserPanel = ({ currentUser }) => {
       key: "user",
       text: (
         <span>
-          Signed in as <strong>{user.displayName}</strong>
+          Signed in as <strong>{user && user.displayName}</strong>
         </span>
       ),
       disabled: true,
@@ -51,8 +51,8 @@ const UserPanel = ({ currentUser }) => {
             <Dropdown
               trigger={
                 <span>
-                  <Image src={user.photoURL} spaced="right" avatar />
-                  {user.displayName}
+                  <Image src={user && user.photoURL} spaced="right" avatar />
+                  {user && user.displayName}
                 </span>
               }
               options={_dropdownOptions()}
