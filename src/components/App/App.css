@@ -4,3 +4,19 @@ html,
   background-color: #eee;
   padding: 1em;
 }
+
+/* Messages.js */
+.messages {
+  min-height: 660px;
+  overflow-y: scroll;
+}
+
+/* MessagesForm.js */
+.message__form {
+  position: fixed !important;
+  bottom: 1em;
+  margin-left: 320px !important;
+  left: 0;
+  right: 1em;
+  z-index: 200;
+}
