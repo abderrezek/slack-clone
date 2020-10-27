@@ -95,7 +95,7 @@ const Channels = ({ currentUser, setCurrentChannel }) => {
   const __isFormValid = ({ channelName, channelDetail }) =>
     channelName && channelDetail;
 
-  const __displayChannels = (channels) =>
+  const _displayChannels = (channels) =>
     channels.length > 0 &&
     channels.map((channel) => (
       <Menu.Item
@@ -120,7 +120,7 @@ const Channels = ({ currentUser, setCurrentChannel }) => {
         </Menu.Item>
 
         {/* Channels */}
-        {__displayChannels(channels)}
+        {_displayChannels(channels)}
       </Menu.Menu>
 
       {/* Add Channel Modal */}

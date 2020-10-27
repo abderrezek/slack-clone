@@ -9,6 +9,7 @@ html,
 .messages {
   min-height: 660px;
   overflow-y: scroll;
+  max-width: none !important;
 }
 
 /* MessagesForm.js */
@@ -19,4 +20,10 @@ html,
   left: 0;
   right: 1em;
   z-index: 200;
+}
+
+/* Message.js */
+.message__self {
+  border-left: 2px solid orange;
+  padding-left: 8px;
 }
