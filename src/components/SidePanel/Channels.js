@@ -7,6 +7,8 @@ import firebase from "../../config/firebase";
 import { setCurrentChannel } from "../../redux/actions/channelActions";
 
 const Channels = ({ currentUser, setCurrentChannel }) => {
+  const [activeChannel, setActiveChannel] = useState("");
+  const [firstLoad, setFirstLoad] = useState(true);
   const [channels, setChannels] = useState([]);
   const [open, setOpen] = useState(false);
   const [inputs, setInputs] = useState({
@@ -31,7 +33,19 @@ const Channels = ({ currentUser, setCurrentChannel }) => {
       })
       .then(() => {
         setChannels(loadedChannels);
-      });
+      })
+      .catch((err) => console.error("Problem with loading Channels"));
+  };
+
+  useEffect(() => {
+    __setFirstChannel();
+  }, [channels]);
+
+  const __setFirstChannel = () => {
+    if (firstLoad && channels.length > 0) {
+      __changeChannel(channels[0]);
+      setFirstLoad(false);
+    }
   };
 
   const _closeModal = (e) => setOpen(false);
@@ -71,7 +85,10 @@ const Channels = ({ currentUser, setCurrentChannel }) => {
       .catch((err) => console.error(err));
   };
 
+  const __setActiveChannel = (channel) => setActiveChannel(channel.id);
+
   const __changeChannel = (channel) => {
+    __setActiveChannel(channel);
     setCurrentChannel(channel);
   };
 
@@ -86,6 +103,7 @@ const Channels = ({ currentUser, setCurrentChannel }) => {
         onClick={() => __changeChannel(channel)}
         name={channel.name}
         style={{ opacity: 0.7 }}
+        active={channel.id === activeChannel}
       >
         # {channel.name}
       </Menu.Item>
