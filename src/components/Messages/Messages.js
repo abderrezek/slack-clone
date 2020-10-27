@@ -17,8 +17,17 @@ const Messages = ({ channel, user }) => {
   useEffect(() => {
     if (channel && user) {
       __chargeMessages(channel.id);
+      __addListnner(channel.id);
     }
+
+    return () => messagesRef.off();
   }, [channel, user]);
+
+  const __addListnner = (channelId) => {
+    messagesRef.child(channelId).on("child_added", (snap) => {
+      setMessages((state) => state.concat(snap.val()));
+    });
+  };
 
   const __chargeMessages = (channelId) => {
     const loadedMessages = [];
