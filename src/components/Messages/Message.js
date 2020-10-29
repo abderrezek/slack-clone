@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import moment from "moment";
 import { Comment, Image } from "semantic-ui-react";
 
@@ -10,7 +10,7 @@ const _timeFromNow = (timestamp) => moment(timestamp).fromNow();
 const _isImage = (msg) =>
   msg.hasOwnProperty("image") && !msg.hasOwnProperty("content");
 
-const Message = ({ message, user }) => (
+const Message = memo(({ message, user }) => (
   <Comment>
     <Comment.Avatar src={message.user.avatar} />
 
@@ -24,6 +24,6 @@ const Message = ({ message, user }) => (
       )}
     </Comment.Content>
   </Comment>
-);
+));
 
 export default Message;
