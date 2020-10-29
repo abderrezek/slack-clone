@@ -14,6 +14,7 @@ const Messages = ({ channel, user }) => {
     firebase.database().ref("messages")
   );
   const [progressBar, setProgressBar] = useState(false);
+  const [numUniqueUsers, setNumUniqueUsers] = useState("");
 
   useEffect(() => {
     if (channel && user) {
@@ -42,11 +43,24 @@ const Messages = ({ channel, user }) => {
       .then(() => {
         setMessages(loadedMessages);
         setLoading(false);
+        __countUniqueUsers(loadedMessages);
       })
       .catch((err) => {
         console.error(err);
         setLoading(false);
       });
+  };
+
+  const __countUniqueUsers = (msgs) => {
+    let uniqueUsers = msgs.reduce((acc, msg) => {
+      if (!acc.includes(msg.user.name)) {
+        acc.push(msg.user.name);
+      }
+      return acc;
+    }, []);
+    let user = uniqueUsers.length === 1 ? "User" : "Users";
+    let numUniqueUsers = `${uniqueUsers.length} ${user}`;
+    setNumUniqueUsers(numUniqueUsers);
   };
 
   const _displayMessage = (messages, user) =>
@@ -56,14 +70,21 @@ const Messages = ({ channel, user }) => {
     ));
 
   const _isProgressBarVisible = (percent) => {
-    if (percent > 0) {
+    if (percent > 0 && percent !== 100) {
       setProgressBar(true);
+    } else {
+      setProgressBar(false);
     }
   };
 
+  const _displayChannelName = (channel) => (channel ? `#${channel.name}` : "");
+
   return (
     <>
-      <MessagesHeader />
+      <MessagesHeader
+        channelName={_displayChannelName(channel)}
+        numUniqueUsers={numUniqueUsers}
+      />
 
       <Segment>
         <Comment.Group

@@ -154,6 +154,7 @@ const MessageForm = ({ messagesRef, channel, user, isProgressBarVisible }) => {
         />
         <Button
           color="teal"
+          disabled={upload.uploadState === "uploading"}
           content="Upload Media"
           labelPosition="right"
           icon="cloud upload"
