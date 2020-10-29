@@ -5,6 +5,11 @@ html,
   padding: 1em;
 }
 
+/* SidePannel.js */
+.menu {
+  padding-bottom: 2em;
+}
+
 /* Messages.js */
 .messages,
 .messages__progress {
