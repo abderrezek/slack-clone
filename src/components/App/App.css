@@ -6,10 +6,16 @@ html,
 }
 
 /* Messages.js */
-.messages {
-  min-height: 660px;
+.messages,
+.messages__progress {
   overflow-y: scroll;
   max-width: none !important;
+}
+.messages {
+  height: 70vh;
+}
+.messages__progress {
+  height: 67vh;
 }
 
 /* MessagesForm.js */
@@ -29,4 +35,9 @@ html,
 }
 .message__image {
   padding: 1em;
+}
+
+/* ProgressBar.js */
+.progress_bar {
+  margin: 0.3em 0 0 0 !important;
 }

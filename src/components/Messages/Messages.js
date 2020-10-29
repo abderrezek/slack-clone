@@ -13,6 +13,7 @@ const Messages = ({ channel, user }) => {
   const [messagesRef, setMessagesRef] = useState(
     firebase.database().ref("messages")
   );
+  const [progressBar, setProgressBar] = useState(false);
 
   useEffect(() => {
     if (channel && user) {
@@ -54,17 +55,30 @@ const Messages = ({ channel, user }) => {
       <Message key={message.timestamp} message={message} user={user} />
     ));
 
+  const _isProgressBarVisible = (percent) => {
+    if (percent > 0) {
+      setProgressBar(true);
+    }
+  };
+
   return (
     <>
       <MessagesHeader />
 
       <Segment>
-        <Comment.Group className="messages">
+        <Comment.Group
+          className={progressBar ? "messages__progress" : "messages"}
+        >
           {_displayMessage(messages, user)}
         </Comment.Group>
       </Segment>
 
-      <MessageForm messagesRef={messagesRef} channel={channel} user={user} />
+      <MessageForm
+        messagesRef={messagesRef}
+        channel={channel}
+        user={user}
+        isProgressBarVisible={_isProgressBarVisible}
+      />
     </>
   );
 };
