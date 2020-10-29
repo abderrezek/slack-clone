@@ -15,6 +15,11 @@ const Messages = ({ channel, user }) => {
   );
   const [progressBar, setProgressBar] = useState(false);
   const [numUniqueUsers, setNumUniqueUsers] = useState("");
+  const [search, setSearch] = useState({
+    searchTerm: "",
+    searchLoading: false,
+    searchResults: [],
+  });
 
   useEffect(() => {
     if (channel && user) {
@@ -79,18 +84,50 @@ const Messages = ({ channel, user }) => {
 
   const _displayChannelName = (channel) => (channel ? `#${channel.name}` : "");
 
+  const _handleSearchChange = (e) =>
+    setSearch({ searchTerm: e.target.value, searchLoading: true });
+
+  useEffect(() => {
+    let channelMessages = [...messages];
+    let regex = new RegExp(search.searchTerm, "gi");
+    let searchResults = channelMessages.reduce((acc, msg) => {
+      if (msg.content && msg.content.match(regex)) {
+        acc.push(msg);
+      }
+      return acc;
+    }, []);
+    setSearch((state) => ({
+      ...state,
+      searchResults: searchResults,
+    }));
+    setTimeout(() => {
+      setSearch((state) => ({ ...state, searchLoading: false }));
+    }, 1000);
+  }, [search.searchTerm]);
+
+  const _handleDeleteSearch = () => {
+    setSearch({ searchTerm: "", searchLoading: false, searchResults: [] });
+  };
+
   return (
     <>
       <MessagesHeader
         channelName={_displayChannelName(channel)}
         numUniqueUsers={numUniqueUsers}
+        handleSearchChange={_handleSearchChange}
+        searchLoading={search.searchLoading}
+        searchValue={search.searchTerm}
+        handleDeleteSearch={_handleDeleteSearch}
       />
 
       <Segment>
         <Comment.Group
           className={progressBar ? "messages__progress" : "messages"}
         >
-          {_displayMessage(messages, user)}
+          {search.searchTerm
+            ? search.searchResults &&
+              _displayMessage(search.searchResults, user)
+            : _displayMessage(messages, user)}
         </Comment.Group>
       </Segment>
 
