@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Input, Segment } from "semantic-ui-react";
 import uuidv4 from "uuid/dist/v4";
 
@@ -11,6 +11,7 @@ const MessageForm = ({ messagesRef, channel, user, isProgressBarVisible }) => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
   const [modal, setModal] = useState(false);
+  /* eslint-disable no-unused-vars */
   const [storageRef, setStorageRef] = useState(firebase.storage().ref());
   const [upload, setUpload] = useState({
     uploadState: "",

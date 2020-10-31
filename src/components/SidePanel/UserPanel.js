@@ -4,6 +4,7 @@ import { Dropdown, Grid, Header, Icon, Image } from "semantic-ui-react";
 import firebase from "../../config/firebase";
 
 const UserPanel = ({ currentUser }) => {
+  /* eslint-disable no-unused-vars */
   const [user, setUser] = useState(currentUser);
 
   const _dropdownOptions = () => [

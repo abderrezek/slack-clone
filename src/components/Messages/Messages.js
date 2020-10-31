@@ -9,7 +9,9 @@ import Message from "./Message";
 
 const Messages = ({ channel, user }) => {
   const [messages, setMessages] = useState([]);
+  /* eslint-disable no-unused-vars */
   const [loading, setLoading] = useState(true);
+  /* eslint-disable no-unused-vars */
   const [messagesRef, setMessagesRef] = useState(
     firebase.database().ref("messages")
   );

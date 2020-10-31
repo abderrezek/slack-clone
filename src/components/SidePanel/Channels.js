@@ -15,6 +15,7 @@ const Channels = ({ currentUser, setCurrentChannel }) => {
     channelName: "",
     channelDetail: "",
   });
+  /* eslint-disable no-unused-vars */
   const [channelsRef, setChannelsRef] = useState(
     firebase.database().ref("channels")
   );

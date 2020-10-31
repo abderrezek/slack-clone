@@ -4,6 +4,7 @@ import mime from "mime-types";
 
 const FileModal = ({ modal, closeModal, uploadFile }) => {
   const [file, setFile] = useState(null);
+  /* eslint-disable no-unused-vars */
   const [authorized, setAuthorized] = useState(["image/jpeg", "image/png"]);
 
   const _addFile = (e) => {

@@ -22,6 +22,7 @@ const Register = (props) => {
   });
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
+  /* eslint-disable no-unused-vars */
   const [usersRef, setUsersRef] = useState(firebase.database().ref("users"));
 
   const __isFormEmpty = ({ username, email, password, passwordConfirmation }) =>
