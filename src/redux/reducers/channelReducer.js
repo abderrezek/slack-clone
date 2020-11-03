@@ -9,6 +9,12 @@ export default function (state = initialeState.channel, action) {
         currentChannel: action.payload.currentChannel,
       };
 
+    case actionsTypes.SET_PRIVATE_CHANNEL:
+      return {
+        ...state,
+        isPrivateChannel: action.payload.isPrivateChannel,
+      };
+
     default:
       return state;
   }
