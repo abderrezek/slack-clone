@@ -7,7 +7,6 @@ import ProgressBar from "./ProgressBar";
 import FileModal from "./FileModal";
 
 const MessageForm = ({
-  messagesRef,
   channel,
   user,
   isProgressBarVisible,

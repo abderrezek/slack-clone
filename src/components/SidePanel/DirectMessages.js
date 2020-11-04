@@ -15,6 +15,7 @@ class DirectMessages extends React.Component {
     usersRef: firebase.database().ref("users"),
     connectedRef: firebase.database().ref(".info/connected"),
     presenceRef: firebase.database().ref("presence"),
+    activeChannel: "",
   };
 
   componentDidMount() {
@@ -80,6 +81,11 @@ class DirectMessages extends React.Component {
     };
     this.props.setCurrentChannel(channelData);
     this.props.setPrivateChannel(true);
+    this.__setActiveChannel(user.uid);
+  };
+
+  __setActiveChannel = (userId) => {
+    this.setState({ activeChannel: userId });
   };
 
   __getChannelId = (userId) => {
@@ -90,19 +96,21 @@ class DirectMessages extends React.Component {
   };
 
   render() {
+    const { users, activeChannel } = this.state;
     return (
       <Menu.Menu className="menu">
         <Menu.Item>
           <span>
             <Icon name="mail" /> DIRECT MESSAGES
           </span>{" "}
-          ({this.state.users.length})
+          ({users.length})
         </Menu.Item>
-        {this.state.users.map((user) => (
+        {users.map((user) => (
           <Menu.Item
             key={user.uid}
             onClick={() => this._changeChannel(user)}
             style={{ opacity: 0.7, fontStyle: "italic" }}
+            active={user.uid === activeChannel}
           >
             <Icon
               name="circle"
