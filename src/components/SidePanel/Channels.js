@@ -4,9 +4,12 @@ import { Button, Form, Icon, Input, Menu, Modal } from "semantic-ui-react";
 
 import firebase from "../../config/firebase";
 
-import { setCurrentChannel } from "../../redux/actions/channelActions";
+import {
+  setCurrentChannel,
+  setPrivateChannel,
+} from "../../redux/actions/channelActions";
 
-const Channels = ({ currentUser, setCurrentChannel }) => {
+const Channels = ({ currentUser, setCurrentChannel, setPrivateChannel }) => {
   const [activeChannel, setActiveChannel] = useState("");
   const [firstLoad, setFirstLoad] = useState(true);
   const [channels, setChannels] = useState([]);
@@ -91,6 +94,7 @@ const Channels = ({ currentUser, setCurrentChannel }) => {
   const __changeChannel = (channel) => {
     __setActiveChannel(channel);
     setCurrentChannel(channel);
+    setPrivateChannel(false);
   };
 
   const __isFormValid = ({ channelName, channelDetail }) =>
@@ -160,4 +164,6 @@ const Channels = ({ currentUser, setCurrentChannel }) => {
   );
 };
 
-export default connect(null, { setCurrentChannel })(Channels);
+export default connect(null, { setCurrentChannel, setPrivateChannel })(
+  Channels
+);

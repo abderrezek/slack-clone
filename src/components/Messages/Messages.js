@@ -7,11 +7,14 @@ import MessageForm from "./MessageForm";
 import MessagesHeader from "./MessagesHeader";
 import Message from "./Message";
 
-const Messages = ({ channel, user }) => {
+const Messages = ({ channel, user, privateChannel }) => {
   const [messages, setMessages] = useState([]);
   /* eslint-disable no-unused-vars */
   const [loading, setLoading] = useState(true);
   /* eslint-disable no-unused-vars */
+  const [privateMessagesRef, setPrivateMessagesRef] = useState(
+    firebase.database().ref("privateMessages")
+  );
   const [messagesRef, setMessagesRef] = useState(
     firebase.database().ref("messages")
   );
@@ -33,14 +36,16 @@ const Messages = ({ channel, user }) => {
   }, [channel, user]);
 
   const __addListnner = (channelId) => {
-    messagesRef.child(channelId).on("child_added", (snap) => {
+    let ref = __getMessagesRef();
+    ref.child(channelId).on("child_added", (snap) => {
       setMessages((state) => state.concat(snap.val()));
     });
   };
 
   const __chargeMessages = (channelId) => {
     const loadedMessages = [];
-    messagesRef
+    let ref = __getMessagesRef();
+    ref
       .child(channelId)
       .once("value", (snap) => {
         snap.forEach((msgs) => {
@@ -84,7 +89,11 @@ const Messages = ({ channel, user }) => {
     }
   };
 
-  const _displayChannelName = (channel) => (channel ? `#${channel.name}` : "");
+  const __getMessagesRef = () =>
+    privateChannel ? privateMessagesRef : messagesRef;
+
+  const _displayChannelName = (channel) =>
+    channel ? `${privateChannel ? "@" : "#"}${channel.name}` : "";
 
   const _handleSearchChange = (e) =>
     setSearch({ searchTerm: e.target.value, searchLoading: true });
@@ -120,6 +129,7 @@ const Messages = ({ channel, user }) => {
         searchLoading={search.searchLoading}
         searchValue={search.searchTerm}
         handleDeleteSearch={_handleDeleteSearch}
+        privateChannel={privateChannel}
       />
 
       <Segment>
@@ -138,6 +148,8 @@ const Messages = ({ channel, user }) => {
         channel={channel}
         user={user}
         isProgressBarVisible={_isProgressBarVisible}
+        privateChannel={privateChannel}
+        getMessagesRef={__getMessagesRef}
       />
     </>
   );

@@ -8,12 +8,14 @@ const MessagesHeader = ({
   searchLoading,
   searchValue,
   handleDeleteSearch,
+  privateChannel,
 }) => {
   return (
     <Segment clearing>
       <Header floated="left" fluid="true" as="h2" style={{ marginBottom: 0 }}>
         <span>
-          {channelName} <Icon name="star outline" color="black" />
+          {channelName}
+          {!privateChannel && <Icon name="star outline" color="black" />}
         </span>
         <Header.Subheader>{numUniqueUsers}</Header.Subheader>
       </Header>

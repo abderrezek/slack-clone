@@ -6,7 +6,14 @@ import firebase from "../../config/firebase";
 import ProgressBar from "./ProgressBar";
 import FileModal from "./FileModal";
 
-const MessageForm = ({ messagesRef, channel, user, isProgressBarVisible }) => {
+const MessageForm = ({
+  messagesRef,
+  channel,
+  user,
+  isProgressBarVisible,
+  privateChannel,
+  getMessagesRef,
+}) => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -24,7 +31,7 @@ const MessageForm = ({ messagesRef, channel, user, isProgressBarVisible }) => {
   const _sendMessage = (e) => {
     if (message) {
       setLoading(true);
-      messagesRef
+      getMessagesRef()
         .child(channel.id)
         .push()
         .set(__createMessage())
@@ -62,8 +69,11 @@ const MessageForm = ({ messagesRef, channel, user, isProgressBarVisible }) => {
 
   const _toggleModal = (show) => setModal(show);
 
+  const __getPath = () =>
+    privateChannel ? `chat/private-${channel.id}` : "chat/public";
+
   const _uploadFile = (file, metadata) => {
-    let filePath = `chat/public/${uuidv4()}.jpg`;
+    let filePath = `${__getPath()}/${uuidv4()}.jpg`;
 
     setUpload({
       uploadState: "uploading",
@@ -100,7 +110,8 @@ const MessageForm = ({ messagesRef, channel, user, isProgressBarVisible }) => {
           .getDownloadURL()
           .then((downloadUrl) => {
             // let id = channel && channel.id;
-            __sendFileMessage(downloadUrl, messagesRef, channel.id);
+            let ref = getMessagesRef();
+            __sendFileMessage(downloadUrl, ref, channel.id);
           })
           .catch((err) => {
             console.error(err);
