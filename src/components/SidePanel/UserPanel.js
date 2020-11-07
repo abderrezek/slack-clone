@@ -3,7 +3,7 @@ import { Dropdown, Grid, Header, Icon, Image } from "semantic-ui-react";
 
 import firebase from "../../config/firebase";
 
-const UserPanel = ({ currentUser }) => {
+const UserPanel = ({ currentUser, primaryColor }) => {
   /* eslint-disable no-unused-vars */
   const [user, setUser] = useState(currentUser);
 
@@ -38,7 +38,7 @@ const UserPanel = ({ currentUser }) => {
   };
 
   return (
-    <Grid style={{ backgroundColor: "#4c3c4c" }}>
+    <Grid style={{ backgroundColor: primaryColor }}>
       <Grid.Column>
         <Grid.Row style={{ padding: "1.2em", margin: 0 }}>
           {/* App header */}

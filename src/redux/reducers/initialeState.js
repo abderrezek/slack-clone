@@ -8,4 +8,8 @@ export default {
     isPrivateChannel: false,
     userPosts: null,
   },
+  colors: {
+    primaryColor: "#4c3c4c",
+    secondaryColor: "#eee",
+  },
 };
