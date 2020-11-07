@@ -1,8 +1,10 @@
 import React from "react";
-import { Accordion, Header, Icon, Segment } from "semantic-ui-react";
+// prettier-ignore
+import { Accordion, Header, Icon, Segment, Image, List } from "semantic-ui-react";
 
 class MetaPanel extends React.Component {
   state = {
+    channel: this.props.currentChannel,
     privateChannel: this.props.isPrivateChannel,
     activeIndex: 0,
   };
@@ -14,15 +16,33 @@ class MetaPanel extends React.Component {
     this.setState({ activeIndex: newIndex });
   };
 
+  __formatCount = (num) =>
+    num > 1 || num === 0 ? `${num} posts` : `${num} post`;
+
+  _displayTopPosters = (posts) =>
+    Object.entries(posts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([key, val], index) => (
+        <List.Item key={index}>
+          <Image avatar src={val.avatar} />
+          <List.Content>
+            <List.Header as="a">{key}</List.Header>
+            <List.Description>{this.__formatCount(val.count)}</List.Description>
+          </List.Content>
+        </List.Item>
+      ))
+      .slice(0, 5);
+
   render() {
-    const { activeIndex, privateChannel } = this.state;
+    const { activeIndex, privateChannel, channel } = this.state;
+    const { userPosts } = this.props;
 
     if (privateChannel) return null;
 
     return (
-      <Segment>
+      <Segment loading={!channel}>
         <Header as="h3" attached="top">
-          About # Channel
+          About #{channel && channel.name}
         </Header>
 
         <Accordion styled attached="true">
@@ -37,7 +57,7 @@ class MetaPanel extends React.Component {
             Channel Details
           </Accordion.Title>
           <Accordion.Content active={activeIndex === 0}>
-            details
+            {channel && channel.details}
           </Accordion.Content>
 
           {/* Top Posts */}
@@ -51,7 +71,7 @@ class MetaPanel extends React.Component {
             Top Posters
           </Accordion.Title>
           <Accordion.Content active={activeIndex === 1}>
-            posters
+            <List>{userPosts && this._displayTopPosters(userPosts)}</List>
           </Accordion.Content>
 
           {/* Created By */}
@@ -65,7 +85,10 @@ class MetaPanel extends React.Component {
             Created By
           </Accordion.Title>
           <Accordion.Content active={activeIndex === 2}>
-            creator
+            <Header as="h3">
+              <Image circular src={channel && channel.createdBy.avatar} />
+              {channel && channel.createdBy.name}
+            </Header>
           </Accordion.Content>
         </Accordion>
       </Segment>

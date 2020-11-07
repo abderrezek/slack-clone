@@ -8,6 +8,7 @@ export default function userReducer(state = initialeState.user, action) {
         currentUser: action.payload.currentUser,
         isLoading: false,
       };
+
     case actionsTypes.CLEAR_USER:
       return {
         ...initialeState.user,

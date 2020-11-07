@@ -15,6 +15,12 @@ export default function (state = initialeState.channel, action) {
         isPrivateChannel: action.payload.isPrivateChannel,
       };
 
+    case actionsTypes.SET_USER_POSTS:
+      return {
+        ...state,
+        userPosts: action.payload.userPosts,
+      };
+
     default:
       return state;
   }
