@@ -1,44 +1,49 @@
 import React from "react";
-import { Header, Icon, Input, Segment } from "semantic-ui-react";
+import { Header, Segment, Input, Icon } from "semantic-ui-react";
 
-const MessagesHeader = ({
-  channelName,
-  numUniqueUsers,
-  handleSearchChange,
-  searchLoading,
-  searchValue,
-  handleDeleteSearch,
-  privateChannel,
-}) => {
-  return (
-    <Segment clearing>
-      <Header floated="left" fluid="true" as="h2" style={{ marginBottom: 0 }}>
-        <span>
-          {channelName}
-          {!privateChannel && <Icon name="star outline" color="black" />}
-        </span>
-        <Header.Subheader>{numUniqueUsers}</Header.Subheader>
-      </Header>
+class MessagesHeader extends React.Component {
+  render() {
+    const {
+      channelName,
+      numUniqueUsers,
+      handleSearchChange,
+      searchLoading,
+      isPrivateChannel,
+      handleStar,
+      isChannelStarred,
+    } = this.props;
 
-      <Header floated="right">
-        <Input
-          loading={searchLoading}
-          onChange={handleSearchChange}
-          icon={
-            searchValue === "" ? (
-              <Icon name="search" />
-            ) : (
-              <Icon name="remove" link onClick={handleDeleteSearch} />
-            )
-          }
-          value={searchValue}
-          size="mini"
-          name="searchTerm"
-          placeholder="Search Messages"
-        />
-      </Header>
-    </Segment>
-  );
-};
+    return (
+      <Segment clearing>
+        {/* Channel Title */}
+        <Header fluid="true" as="h2" floated="left" style={{ marginBottom: 0 }}>
+          <span>
+            {channelName}
+            {!isPrivateChannel && (
+              <Icon
+                onClick={handleStar}
+                name={isChannelStarred ? "star" : "star outline"}
+                color={isChannelStarred ? "yellow" : "black"}
+              />
+            )}
+          </span>
+          <Header.Subheader>{numUniqueUsers}</Header.Subheader>
+        </Header>
+
+        {/* Channel Search Input */}
+        <Header floated="right">
+          <Input
+            loading={searchLoading}
+            onChange={handleSearchChange}
+            size="mini"
+            icon="search"
+            name="searchTerm"
+            placeholder="Search Messages"
+          />
+        </Header>
+      </Segment>
+    );
+  }
+}
 
 export default MessagesHeader;
