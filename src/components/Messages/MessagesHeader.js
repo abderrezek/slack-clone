@@ -24,6 +24,7 @@ class MessagesHeader extends React.Component {
                 onClick={handleStar}
                 name={isChannelStarred ? "star" : "star outline"}
                 color={isChannelStarred ? "yellow" : "black"}
+                style={{ cursor: "pointer" }}
               />
             )}
           </span>
