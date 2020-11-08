@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button, Input, Segment } from "semantic-ui-react";
 import uuidv4 from "uuid/dist/v4";
 
@@ -6,50 +6,53 @@ import firebase from "../../config/firebase";
 import ProgressBar from "./ProgressBar";
 import FileModal from "./FileModal";
 
-const MessageForm = ({
-  channel,
-  user,
-  isProgressBarVisible,
-  privateChannel,
-  getMessagesRef,
-}) => {
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState([]);
-  const [modal, setModal] = useState(false);
-  /* eslint-disable no-unused-vars */
-  const [storageRef, setStorageRef] = useState(firebase.storage().ref());
-  const [upload, setUpload] = useState({
+class MessageForm extends React.Component {
+  state = {
+    message: "",
+    loading: false,
+    errors: [],
+    modal: false,
+    storageRef: firebase.storage().ref(),
+    percentUploaded: 0,
     uploadState: "",
     uploadTask: null,
-  });
-  const [percentUploaded, setPercentUploaded] = useState(0);
+    channel: this.props.currentChannel,
+    user: this.props.currentUser,
+    messagesRef: this.props.messagesRef,
+  };
 
-  const _handleChange = (e) => setMessage(e.target.value);
+  _handleChange = (e) => this.setState({ message: e.target.value });
 
-  const _sendMessage = (e) => {
+  _sendMessage = (e) => {
+    let { message, channel } = this.state;
+    let { getMessagesRef } = this.props;
+
     if (message) {
-      setLoading(true);
+      this.setState({ loading: true });
       getMessagesRef()
         .child(channel.id)
         .push()
-        .set(__createMessage())
+        .set(this.__createMessage())
         .then(() => {
-          setMessage("");
-          setLoading(false);
-          setErrors([]);
+          this.setState({ message: "", loading: false, errors: [] });
         })
         .catch((err) => {
           console.error(err);
-          setLoading(false);
-          setErrors((state) => [...state, err]);
+          this.setState({
+            loading: false,
+            errors: this.state.errors.concat(err),
+          });
         });
     } else {
-      setErrors([{ message: "Add a message" }]);
+      this.setState({
+        errors: this.state.errors.concat({ message: "Add a message" }),
+      });
     }
   };
 
-  const __createMessage = (fileUrl = null) => {
+  __createMessage = (fileUrl = null) => {
+    let { user, message } = this.state;
+
     let messageNew = {
       timestamp: firebase.database.ServerValue.TIMESTAMP,
       user: {
@@ -66,123 +69,135 @@ const MessageForm = ({
     return messageNew;
   };
 
-  const _toggleModal = (show) => setModal(show);
+  _toggleModal = (show) => this.setState({ modal: show });
 
-  const __getPath = () =>
-    privateChannel ? `chat/private-${channel.id}` : "chat/public";
-
-  const _uploadFile = (file, metadata) => {
-    let filePath = `${__getPath()}/${uuidv4()}.jpg`;
-
-    setUpload({
-      uploadState: "uploading",
-      uploadTask: storageRef.child(filePath).put(file, metadata),
-    });
+  __getPath = () => {
+    if (this.props.isPrivateChannel) {
+      return `chat/private-${this.state.channel.id}`;
+    } else {
+      return "chat/public";
+    }
   };
 
-  useEffect(() => {
-    if (upload.uploadTask) {
-      __addListenner(upload.uploadTask);
-    }
-  }, [upload.uploadTask]);
+  _uploadFile = (file, metadata) => {
+    const pathToUpload = this.state.channel.id;
+    const ref = this.props.getMessagesRef();
+    const filePath = `${this.__getPath()}/${uuidv4()}.jpg`;
 
-  const __addListenner = (uTask) => {
-    uTask.on(
-      "state_changed",
-      (snap) => {
-        let percentUploaded = Math.round(
-          (snap.bytesTransferred / snap.totalBytes) * 100
-        );
-        isProgressBarVisible(percentUploaded);
-        setPercentUploaded(percentUploaded);
-      },
-      (err) => {
-        console.error(err);
-        setErrors((state) => [...state, err]);
-        setUpload({
-          uploadState: "error",
-          uploadTask: null,
-        });
+    this.setState(
+      {
+        uploadState: "uploading",
+        uploadTask: this.state.storageRef.child(filePath).put(file, metadata),
       },
       () => {
-        uTask.snapshot.ref
-          .getDownloadURL()
-          .then((downloadUrl) => {
-            // let id = channel && channel.id;
-            let ref = getMessagesRef();
-            __sendFileMessage(downloadUrl, ref, channel.id);
-          })
-          .catch((err) => {
+        this.state.uploadTask.on(
+          "state_changed",
+          (snap) => {
+            const percentUploaded = Math.round(
+              (snap.bytesTransferred / snap.totalBytes) * 100
+            );
+            this.setState({ percentUploaded });
+          },
+          (err) => {
             console.error(err);
-            setErrors((state) => [...state, err]);
-            setUpload({
+            this.setState({
+              errors: this.state.errors.concat(err),
               uploadState: "error",
               uploadTask: null,
             });
-          });
+          },
+          () => {
+            this.state.uploadTask.snapshot.ref
+              .getDownloadURL()
+              .then((downloadUrl) => {
+                this.__sendFileMessage(downloadUrl, ref, pathToUpload);
+              })
+              .catch((err) => {
+                console.error(err);
+                this.setState({
+                  errors: this.state.errors.concat(err),
+                  uploadState: "error",
+                  uploadTask: null,
+                });
+              });
+          }
+        );
       }
     );
   };
 
-  const __sendFileMessage = (url, ref, id) => {
+  __sendFileMessage = (fileUrl, ref, pathToUpload) => {
     ref
-      .child(id)
+      .child(pathToUpload)
       .push()
-      .set(__createMessage(url))
+      .set(this.__createMessage(fileUrl))
       .then(() => {
-        setUpload((state) => ({ ...state, uploadState: "done" }));
+        this.setState({ uploadState: "done" });
       })
       .catch((err) => {
         console.error(err);
-        setErrors((state) => [...state, err]);
+        this.setState({
+          errors: this.state.errors.concat(err),
+        });
       });
   };
 
-  return (
-    <Segment className="message__form">
-      <Input
-        fluid
-        onChange={_handleChange}
-        name="message"
-        style={{ marginBottom: ".7em" }}
-        label={<Button icon="add" />}
-        labelPosition="left"
-        value={message}
-        placeholder="Write your message"
-        className={
-          errors.some((err) => err.message.includes("message")) ? "error" : ""
-        }
-      />
+  render() {
+    const {
+      message,
+      errors,
+      loading,
+      uploadState,
+      modal,
+      percentUploaded,
+    } = this.state;
 
-      <Button.Group icon widths="2">
-        <Button
-          onClick={_sendMessage}
-          color="orange"
-          content="Add Reply"
+    return (
+      <Segment className="message__form">
+        <Input
+          fluid
+          onChange={this._handleChange}
+          name="message"
+          style={{ marginBottom: ".7em" }}
+          label={<Button icon="add" />}
           labelPosition="left"
-          icon="edit"
-          disabled={loading}
+          value={message}
+          placeholder="Write your message"
+          className={
+            errors.some((err) => err.message.includes("message")) ? "error" : ""
+          }
         />
-        <Button
-          color="teal"
-          disabled={upload.uploadState === "uploading"}
-          content="Upload Media"
-          labelPosition="right"
-          icon="cloud upload"
-          onClick={() => _toggleModal(true)}
+
+        <Button.Group icon widths="2">
+          <Button
+            onClick={this._sendMessage}
+            color="orange"
+            content="Add Reply"
+            labelPosition="left"
+            icon="edit"
+            disabled={loading}
+          />
+          <Button
+            color="teal"
+            disabled={uploadState === "uploading"}
+            content="Upload Media"
+            labelPosition="right"
+            icon="cloud upload"
+            onClick={() => this._toggleModal(true)}
+          />
+        </Button.Group>
+        <FileModal
+          modal={modal}
+          closeModal={() => this._toggleModal(false)}
+          uploadFile={this._uploadFile}
         />
-      </Button.Group>
-      <FileModal
-        modal={modal}
-        closeModal={() => _toggleModal(false)}
-        uploadFile={_uploadFile}
-      />
-      <ProgressBar
-        uploadState={upload.uploadState}
-        percentUploaded={percentUploaded}
-      />
-    </Segment>
-  );
-};
+        <ProgressBar
+          uploadState={uploadState}
+          percentUploaded={percentUploaded}
+        />
+      </Segment>
+    );
+  }
+}
 
 export default MessageForm;
