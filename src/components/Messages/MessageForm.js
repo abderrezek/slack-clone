@@ -19,12 +19,13 @@ class MessageForm extends React.Component {
     channel: this.props.currentChannel,
     user: this.props.currentUser,
     messagesRef: this.props.messagesRef,
+    typingRef: firebase.database().ref("typing"),
   };
 
   _handleChange = (e) => this.setState({ message: e.target.value });
 
   _sendMessage = (e) => {
-    let { message, channel } = this.state;
+    let { message, channel, typingRef, user } = this.state;
     let { getMessagesRef } = this.props;
 
     if (message) {
@@ -35,6 +36,7 @@ class MessageForm extends React.Component {
         .set(this.__createMessage())
         .then(() => {
           this.setState({ message: "", loading: false, errors: [] });
+          typingRef.child(channel.id).child(user.uid).remove();
         })
         .catch((err) => {
           console.error(err);
@@ -142,6 +144,16 @@ class MessageForm extends React.Component {
       });
   };
 
+  _handleKeyDown = () => {
+    const { message, typingRef, channel, user } = this.state;
+
+    if (message) {
+      typingRef.child(channel.id).child(user.uid).set(user.displayName);
+    } else {
+      typingRef.child(channel.id).child(user.uid).remove();
+    }
+  };
+
   render() {
     const {
       message,
@@ -157,6 +169,7 @@ class MessageForm extends React.Component {
         <Input
           fluid
           onChange={this._handleChange}
+          onKeyDown={this._handleKeyDown}
           name="message"
           style={{ marginBottom: ".7em" }}
           label={<Button icon="add" />}
